@@ -92,31 +92,43 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public Configuration parse() {
+    // 只允许初始化一次
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
     parsed = true;
+    // todo 解析成主配置对象返回(Configuration)
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
   }
 
   private void parseConfiguration(XNode root) {
     try {
+      // todo 解析主配置,按照顺序解析 XML根节点为 Configuration  配置文件
+      // 解析顺序为 properties->settings->typeAliases->plugins->objectFactory->objectWrapperFactory->reflectorFactory->
+      // environments->databaseIdProvider->typeHandlers->mappers
+
       // issue #117 read properties first
       propertiesElement(root.evalNode("properties"));
+      // 设置参数，如二级缓存等.
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
       loadCustomLogImpl(settings);
+      // 解析别名 com.iszhangsc.User -> User
       typeAliasesElement(root.evalNode("typeAliases"));
+      // 解析插件(拦截器)
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
+      // 解析环境信息,如数据库连接信息等.
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      // 解析类型转换器.
       typeHandlerElement(root.evalNode("typeHandlers"));
+      // 解析mapper 4 种方式.
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -362,11 +374,17 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
+      // 4种解析方式.
       for (XNode child : parent.getChildren()) {
+        // package标签解析->   <package name="com.iszhangsc"/>
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
+          // todo 注册到映射注册类中(MapperRegister)
           configuration.addMappers(mapperPackage);
-        } else {
+        }
+        // mapper标签 3种解析方式-> <mapper class="com.iszhangsc.UserMapper" resource="" url="" />
+        // 只能是 class、resource、url中的一种
+        else {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");

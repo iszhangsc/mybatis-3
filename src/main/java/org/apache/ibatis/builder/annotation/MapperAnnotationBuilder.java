@@ -96,6 +96,9 @@ import org.apache.ibatis.type.UnknownTypeHandler;
  */
 public class MapperAnnotationBuilder {
 
+  /**
+   * mapper CURD方法注解
+   */
   private static final Set<Class<? extends Annotation>> statementAnnotationTypes = Stream
       .of(Select.class, Update.class, Insert.class, Delete.class, SelectProvider.class, UpdateProvider.class,
           InsertProvider.class, DeleteProvider.class)
@@ -115,6 +118,7 @@ public class MapperAnnotationBuilder {
   public void parse() {
     String resource = type.toString();
     if (!configuration.isResourceLoaded(resource)) {
+      // 优先加载XML
       loadXmlResource();
       configuration.addLoadedResource(resource);
       assistant.setCurrentNamespace(type.getName());

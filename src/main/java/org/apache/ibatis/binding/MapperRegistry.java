@@ -58,12 +58,16 @@ public class MapperRegistry {
   }
 
   public <T> void addMapper(Class<T> type) {
+    // 必须是接口.
     if (type.isInterface()) {
+      // 存在Mapper接口就抛异常.
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
       }
+      // 通过标记 loadCompleted 来确保添加成功
       boolean loadCompleted = false;
       try {
+        // 字节码对象作为key,创建该字节码对象的代理作为value
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
@@ -72,6 +76,7 @@ public class MapperRegistry {
         parser.parse();
         loadCompleted = true;
       } finally {
+        // 添加失败则删除映射关系.
         if (!loadCompleted) {
           knownMappers.remove(type);
         }
@@ -99,6 +104,7 @@ public class MapperRegistry {
    * @since 3.2.2
    */
   public void addMappers(String packageName, Class<?> superType) {
+    // 通过 ResolverUtil找出包下面的字节码对象，放入Set集合.遍历.
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
     Set<Class<? extends Class<?>>> mapperSet = resolverUtil.getClasses();

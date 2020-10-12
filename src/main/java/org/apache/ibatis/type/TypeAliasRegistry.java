@@ -39,6 +39,9 @@ public class TypeAliasRegistry {
 
   private final Map<String, Class<?>> typeAliases = new HashMap<>();
 
+  /**
+   * 别名注册器，默认注册 八大基本类型及其引用类型和String 集合包中的collection、Iterator、list、map和其实现类
+   */
   public TypeAliasRegistry() {
     registerAlias("string", String.class);
 

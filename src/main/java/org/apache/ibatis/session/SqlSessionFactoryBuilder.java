@@ -74,6 +74,7 @@ public class SqlSessionFactoryBuilder {
 
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
+      // 创建XML配置构建对象(XMLConfigBuilder) 底层使用的是XPath解析器.
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
       return build(parser.parse());
     } catch (Exception e) {
@@ -81,6 +82,7 @@ public class SqlSessionFactoryBuilder {
     } finally {
       ErrorContext.instance().reset();
       try {
+        // 外部不需要关闭流信息.
         inputStream.close();
       } catch (IOException e) {
         // Intentionally ignore. Prefer previous error.
