@@ -102,20 +102,24 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void parseConfiguration(XNode root) {
     try {
+      // ==================================== 这里面的操作都会将XML配置解析 并且保存到 Configuration 对象中的对应属性中
       //issue #117 read properties first
       propertiesElement(root.evalNode("properties"));
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
       typeAliasesElement(root.evalNode("typeAliases"));
+      // 解析plugins标签，并且添加插件到InterceptorChain ！！！！！
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
+      // 解析environments标签，设置环境(数据源)
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
       typeHandlerElement(root.evalNode("typeHandlers"));
+      // 解析mappers标签，并且添加Mapper接口到MapperRegistry中. ！！！！
       mapperElement(root.evalNode("mappers"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -178,10 +182,13 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void pluginElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
+        // 标签名叫 plugin 里面只有一个属性名  interceptor 配置的是对应的全限定类名,该类需要实现Interceptor接口
         String interceptor = child.getStringAttribute("interceptor");
         Properties properties = child.getChildrenAsProperties();
+        // 反射实例化插件类
         Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).newInstance();
         interceptorInstance.setProperties(properties);
+        // 加入到 InterceptorChain 供后续调用
         configuration.addInterceptor(interceptorInstance);
       }
     }
@@ -359,24 +366,34 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
+        // 解析大致分为两种
+        // 一、package 标签, 基于包的形式, 常用这种. 这种比较简单.
         if ("package".equals(child.getName())) {
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
-        } else {
+        }
+        // 二、mapper 标签 , 只能一个一个的写，很麻烦, 不常用， 解析也很复杂.
+        else {
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
+          // 1. resource属性
           if (resource != null && url == null && mapperClass == null) {
             ErrorContext.instance().resource(resource);
             InputStream inputStream = Resources.getResourceAsStream(resource);
+            // XML 解析器
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
             mapperParser.parse();
-          } else if (resource == null && url != null && mapperClass == null) {
+          }
+          // 2. url 属性
+          else if (resource == null && url != null && mapperClass == null) {
             ErrorContext.instance().resource(url);
             InputStream inputStream = Resources.getUrlAsStream(url);
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
             mapperParser.parse();
-          } else if (resource == null && url == null && mapperClass != null) {
+          }
+          // class 属性
+          else if (resource == null && url == null && mapperClass != null) {
             Class<?> mapperInterface = Resources.classForName(mapperClass);
             configuration.addMapper(mapperInterface);
           } else {

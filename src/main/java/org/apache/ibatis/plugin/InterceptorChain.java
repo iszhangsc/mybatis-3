@@ -24,6 +24,9 @@ import java.util.List;
  */
 public class InterceptorChain {
 
+  /**
+   * 实现了Interceptor接口的插件列表
+   */
   private final List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
   public Object pluginAll(Object target) {

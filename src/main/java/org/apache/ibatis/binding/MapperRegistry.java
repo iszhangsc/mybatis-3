@@ -58,12 +58,16 @@ public class MapperRegistry {
   }
 
   public <T> void addMapper(Class<T> type) {
+    // ====================  这里只能是注册接口, 不知道为什么他这里不给个提示，不是接口的情况，差评........
     if (type.isInterface()) {
+      // 如果已经注册了，这里直接抛异常.... 确定接口的唯一
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
       }
+      // 加载完成标志
       boolean loadCompleted = false;
       try {
+        // 将当前类作为key, 将当前类保存到Mapper代理工厂中作为value 保存到已加载的mappers中
         knownMappers.put(type, new MapperProxyFactory<T>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
