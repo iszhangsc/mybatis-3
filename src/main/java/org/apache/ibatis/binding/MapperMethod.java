@@ -52,6 +52,7 @@ public class MapperMethod {
 
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
+    // 增删改查 选择执行
     switch (command.getType()) {
       case INSERT: {
       Object param = method.convertArgsToSqlCommandParam(args);
@@ -97,6 +98,7 @@ public class MapperMethod {
   }
 
   private Object rowCountResult(int rowCount) {
+    // 按照Mapper接口方法返回类型 对操作影响的行数结果集封装, 支持Integer、Long、Boolean
     final Object result;
     if (method.returnsVoid()) {
       result = null;

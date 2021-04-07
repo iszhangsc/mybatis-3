@@ -105,19 +105,23 @@ public class XMLConfigBuilder extends BaseBuilder {
       // ==================================== 这里面的操作都会将XML配置解析 并且保存到 Configuration 对象中的对应属性中
       //issue #117 read properties first
       propertiesElement(root.evalNode("properties"));
+      // 解析settings标签, 这个里面主要是一些日志的实现、懒加载、缓存的开启之类的配置!!!!.
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
+      // 解析别名（这里面内置了大部分的常用的JDK 类别名）,并且添加到typeAliasRegistry。感觉这个功能很鸡肋.不便于我们排查错误.~~~~~~~~~~
       typeAliasesElement(root.evalNode("typeAliases"));
-      // 解析plugins标签，并且添加插件到InterceptorChain ！！！！！
+      // 解析plugins标签，并且添加插件到InterceptorChain中 ！！！！！
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
       objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
       reflectorFactoryElement(root.evalNode("reflectorFactory"));
+      // 添加settings标签中解析的内容到Configuration中.!!!!
       settingsElement(settings);
       // read it after objectFactory and objectWrapperFactory issue #631
       // 解析environments标签，设置环境(数据源)
       environmentsElement(root.evalNode("environments"));
       databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+      // 解析typeHandlers标签，并且添加类型转换器到typeHandlerRegistry中 ！！！
       typeHandlerElement(root.evalNode("typeHandlers"));
       // 解析mappers标签，并且添加Mapper接口到MapperRegistry中. ！！！！
       mapperElement(root.evalNode("mappers"));
@@ -165,6 +169,7 @@ public class XMLConfigBuilder extends BaseBuilder {
           String alias = child.getStringAttribute("alias");
           String type = child.getStringAttribute("type");
           try {
+            // 反射，获取Class
             Class<?> clazz = Resources.classForName(type);
             if (alias == null) {
               typeAliasRegistry.registerAlias(clazz);
@@ -262,7 +267,7 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setLazyLoadTriggerMethods(stringSetValueOf(props.getProperty("lazyLoadTriggerMethods"), "equals,clone,hashCode,toString"));
     configuration.setSafeResultHandlerEnabled(booleanValueOf(props.getProperty("safeResultHandlerEnabled"), true));
     configuration.setDefaultScriptingLanguage(resolveClass(props.getProperty("defaultScriptingLanguage")));
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     Class<? extends TypeHandler> typeHandler = (Class<? extends TypeHandler>)resolveClass(props.getProperty("defaultEnumTypeHandler"));
     configuration.setDefaultEnumTypeHandler(typeHandler);
     configuration.setCallSettersOnNulls(booleanValueOf(props.getProperty("callSettersOnNulls"), false));

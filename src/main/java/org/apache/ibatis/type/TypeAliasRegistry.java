@@ -142,6 +142,7 @@ public class TypeAliasRegistry {
     String alias = type.getSimpleName();
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {
+      // 配置文件没有配置别名, 则从类上的注解找.
       alias = aliasAnnotation.value();
     } 
     registerAlias(alias, type);

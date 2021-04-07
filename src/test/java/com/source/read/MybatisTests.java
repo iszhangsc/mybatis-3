@@ -29,6 +29,7 @@ public class MybatisTests {
         InputStream inputStream = Resources.getResourceAsStream(resource);
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
         SqlSession sqlSession = sqlSessionFactory.openSession();
+        // mapper 是一个JDK代理对象
         UserMapper mapper = sqlSession.getMapper(UserMapper.class);
         User user = mapper.selectOne(1);
         System.out.println("查询User结果--->" + user);

@@ -28,6 +28,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * MyBatis Mapper 接口JDK动态代理类
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -55,7 +56,9 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
     }
+    // MapperMethod 缓存
     final MapperMethod mapperMethod = cachedMapperMethod(method);
+    // 执行具体的增删改查方法。！！！
     return mapperMethod.execute(sqlSession, args);
   }
 
