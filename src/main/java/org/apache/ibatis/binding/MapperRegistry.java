@@ -67,12 +67,13 @@ public class MapperRegistry {
       // 加载完成标志
       boolean loadCompleted = false;
       try {
-        // 将当前类作为key, 将当前类保存到Mapper代理工厂中作为value 保存到已加载的mappers中
+        // 注册当前接口和其对应的动态代理工厂类!!!
         knownMappers.put(type, new MapperProxyFactory<T>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
+        // 解析Mapper 接口
         parser.parse();
         loadCompleted = true;
       } finally {

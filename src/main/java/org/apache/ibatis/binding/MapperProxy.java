@@ -28,7 +28,7 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.session.SqlSession;
 
 /**
- * MyBatis Mapper 接口JDK动态代理类
+ * MyBatis Mapper 接口JDK动态代理类, 所有的Mapper接口的方法都会被拦截并且在这里调用.
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -56,7 +56,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
     }
-    // MapperMethod 缓存
+    // MapperMethod 获取
     final MapperMethod mapperMethod = cachedMapperMethod(method);
     // 执行具体的增删改查方法。！！！
     return mapperMethod.execute(sqlSession, args);
@@ -65,6 +65,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   private MapperMethod cachedMapperMethod(Method method) {
     MapperMethod mapperMethod = methodCache.get(method);
     if (mapperMethod == null) {
+      // 构建Mapper 方法信息. 方法签名、方法参数解析.!!!!!!
       mapperMethod = new MapperMethod(mapperInterface, method, sqlSession.getConfiguration());
       methodCache.put(method, mapperMethod);
     }

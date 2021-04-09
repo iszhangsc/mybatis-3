@@ -16,6 +16,7 @@
 package org.apache.ibatis.executor;
 
 /**
+ * 基于ThreadLocal 的 错误消息 上下文 单例对象.
  * @author Clinton Begin
  */
 public class ErrorContext {

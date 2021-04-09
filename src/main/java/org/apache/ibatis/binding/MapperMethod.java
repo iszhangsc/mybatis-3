@@ -52,7 +52,7 @@ public class MapperMethod {
 
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
-    // 增删改查 选择执行
+    // 增删改查 类型选择执行
     switch (command.getType()) {
       case INSERT: {
       Object param = method.convertArgsToSqlCommandParam(args);
@@ -70,6 +70,7 @@ public class MapperMethod {
         break;
       }
       case SELECT:
+        // 查询命令下, 又分为多种类型....
         if (method.returnsVoid() && method.hasResultHandler()) {
           executeWithResultHandler(sqlSession, args);
           result = null;
@@ -97,8 +98,12 @@ public class MapperMethod {
     return result;
   }
 
+  /**
+   * 按照Mapper申明的接口方法返回类型 对操作影响的行数 进行 Integer、Long、Boolean 接口返回方法类型进行转换.
+   * @param rowCount  执行SQL后影响的行数
+   * @return          Object
+   */
   private Object rowCountResult(int rowCount) {
-    // 按照Mapper接口方法返回类型 对操作影响的行数结果集封装, 支持Integer、Long、Boolean
     final Object result;
     if (method.returnsVoid()) {
       result = null;
@@ -294,6 +299,7 @@ public class MapperMethod {
       this.returnsMap = this.mapKey != null;
       this.rowBoundsIndex = getUniqueParamIndex(method, RowBounds.class);
       this.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);
+      // 参数名称解析器！！！！
       this.paramNameResolver = new ParamNameResolver(configuration, method);
     }
 

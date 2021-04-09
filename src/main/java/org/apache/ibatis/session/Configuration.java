@@ -575,7 +575,9 @@ public class Configuration {
     } else {
       executor = new SimpleExecutor(this, transaction);
     }
+    // 这里框架默认是启用缓存(一级)
     if (cacheEnabled) {
+      // 使用 代理模式 对原有的 executor 对象进行代理包装.
       executor = new CachingExecutor(executor);
     }
     executor = (Executor) interceptorChain.pluginAll(executor);

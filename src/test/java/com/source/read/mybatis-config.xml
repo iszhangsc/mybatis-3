@@ -23,7 +23,5 @@
 
     <mappers>
         <mapper resource="com/source/read/UserMapper.xml"/>
-        <package name="s"/>
-        <package name="x"/>
     </mappers>
 </configuration>

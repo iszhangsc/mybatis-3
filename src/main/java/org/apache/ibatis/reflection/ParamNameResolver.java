@@ -58,6 +58,7 @@ public class ParamNameResolver {
     // get names from @Param annotations
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
       if (isSpecialParameter(paramTypes[paramIndex])) {
+        // 特殊参数类型 RowBounds、ResultHandler 跳过
         // skip special parameters
         continue;
       }
